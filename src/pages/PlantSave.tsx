@@ -13,7 +13,7 @@ import { SvgFromUri } from 'react-native-svg';
 import colors from '../styles/colors';
 import fonts from '../styles/fonts';
 
-export default function PlanSave() {
+export default function PlantSave() {
 
     return (
         <View style={styles.container}>
