@@ -22,29 +22,40 @@ export default function UserIdentification() {
 
     const navigation = useNavigation();
 
-    function handledInputBlur(){
+    function handledInputBlur() {
         setIsFocused(false);
         setIsFilled(!!name);
     }
-    
-    function handledInputFocus(){
+
+    function handledInputFocus() {
         setIsFocused(true);
     }
 
-    function handleInputChange(value: string){
+    function handleInputChange(value: string) {
         setIsFocused(!!value);
         setName(value);
     }
 
-    async function handleSubmit(){
-        if(!name){
+    async function handleSubmit() {
+        if (!name) {
             return Alert.alert('Me diz como chamar você 😢')
         }
 
-        await AsyncStorage.setItem('@plantmanager:user', name);
-        navigation.navigate('Confirmation');
+        try {
+            await AsyncStorage.setItem('@plantmanager:user', name);
+            navigation.navigate('Confirmation', {
+                title: 'Prontinho',
+                subtitle: 'Agora vamos começar a cuidar das suas plantinhas',
+                buttonTitle: 'Começar',
+                icon: 'smile',
+                nextScreen: 'PlantSelect',
+            });
+        } catch (error) {
+            Alert.alert('Não foi possivel salvar seu nome')
+        }
+
     }
-    
+
     return (
         <SafeAreaView style={styles.container}>
             <KeyboardAvoidingView
@@ -55,19 +66,19 @@ export default function UserIdentification() {
                     <View style={styles.form}>
                         <View style={styles.header}>
                             <Text style={styles.emoji}>
-                                { isFilled ? '😄' : '😃' }
+                                {isFilled ? '😄' : '😃'}
                             </Text>
 
-                                <Text style={styles.title}>
-                                    Como podemos{'\n'}
+                            <Text style={styles.title}>
+                                Como podemos{'\n'}
                                 chamar você?
                             </Text>
                         </View>
-                        
+
                         <TextInput
                             style={[
                                 styles.input,
-                                (isFocused || isFilled ) && { borderColor: colors.green }
+                                (isFocused || isFilled) && { borderColor: colors.green }
                             ]}
                             placeholder='Digite seu nome'
                             onBlur={handledInputBlur}
@@ -76,7 +87,7 @@ export default function UserIdentification() {
                         />
 
                         <View style={styles.footer}>
-                            <Button 
+                            <Button
                                 title='Confirmar'
                                 onPress={handleSubmit}
                             />
@@ -105,7 +116,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 54,
         alignItems: 'center',
     },
-    header:{
+    header: {
         alignItems: 'center',
     },
     emoji: {

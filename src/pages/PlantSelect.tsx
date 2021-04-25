@@ -16,24 +16,14 @@ import PlantsCardPrimary from '../components/PlantsCardPrimary';
 import { Load } from '../components/Load';
 
 import api from '../services/api';
+import { useNavigation } from '@react-navigation/native';
+import { PlantProps } from '../libs/storage';
 
 interface EnviromentProps {
     key: string;
     title: string;
 }
 
-interface PlantProps {
-    id: string;
-    name: string;
-    about: string;
-    water_tips: string;
-    photo: string;
-    environments: [string];
-    frequency: {
-        times: number;
-        repeat_every: string;
-    }
-}
 
 export default function PlantSelect() {
 
@@ -45,6 +35,12 @@ export default function PlantSelect() {
 
     const [page, setPage] = useState(1);
     const [loadingMore, setLoadingMore] = useState(true);
+
+    const navigation = useNavigation();
+
+    function handlePlantSelect(plant: PlantProps){
+        navigation.navigate('PlantSave', {plant});
+    }
 
     function handleEnviromentSelected(enviroment: string){
         setEnviromentSelected(enviroment);
@@ -146,6 +142,7 @@ export default function PlantSelect() {
                     renderItem={({ item }) => (
                         <PlantsCardPrimary
                             data={item}
+                            onPress={() => handlePlantSelect(item)}
                         />
                     )}
                     showsVerticalScrollIndicator={false}
