@@ -3,25 +3,50 @@ import {
     StyleSheet,
     View,
     Text,
-    Image
+    Image,
+    Alert
 } from 'react-native';
 import Header from '../components/Header';
 import colors from '../styles/colors';
 import waterdrop from '../assets/waterdrop.png';
 import { FlatList } from 'react-native-gesture-handler';
-import { PlantProps, loadPllant } from '../libs/storage';
+import { PlantProps, loadPllant, StoragePlantProps, removePlant } from '../libs/storage';
 import { formatDistance } from 'date-fns';
 import { pt } from 'date-fns/esm/locale';
 import fonts from '../styles/fonts';
 import PlantsCardSecondary from '../components/PlantsCardSecondary';
+import { Load } from '../components/Load';
 
 export function MyPlants() {
     const [myPlants, setMyPlants] = useState<PlantProps[]>([]);
     const [loading, setLoading] = useState(true);
     const [nextWaterd, setNextWaterd] = useState<string>();
 
+    function handleRemove(plant: PlantProps){
+        Alert.alert('Remover', `Deseja remover a ${plant.name}`,[
+            {
+                text: 'Não',
+                style: 'cancel',
+            },
+            {
+                text: 'Sim',
+                onPress: async () => {
+                    try {
+                        await removePlant(plant.id);
+
+                        setMyPlants((oldData) => (
+                            oldData.filter((item) => item.id !== plant.id)
+                        ));
+                    } catch (error) {
+                        Alert.alert('Não Foi possivel Remover');
+                    }
+                }
+            }
+        ]);
+    }
+
     useEffect(() => {
-        async function loadStorageData(){
+        async function loadStorageData() {
             const plantsStoraged = await loadPllant();
 
             const nextTime = formatDistance(
@@ -40,6 +65,9 @@ export function MyPlants() {
 
         loadStorageData();
     })
+
+    if (loading)
+        return <Load />
 
     return (
         <View style={styles.container} >
@@ -62,9 +90,12 @@ export function MyPlants() {
 
                 <FlatList
                     data={myPlants}
-                    keyExtractor={(item)=> String(item.id)}
-                    renderItem={({item}) => (
-                        <PlantsCardSecondary data={item} />
+                    keyExtractor={(item) => String(item.id)}
+                    renderItem={({ item }) => (
+                        <PlantsCardSecondary
+                            data={item}
+                            handleRemove={ () => { handleRemove(item) }}
+                        />
                     )}
                 />
             </View>
@@ -85,7 +116,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.blue_light,
         paddingHorizontal: 20,
         borderRadius: 20,
-        height:110,
+        height: 110,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
@@ -94,7 +125,7 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
     },
-    spotlightText:{
+    spotlightText: {
         flex: 1,
         color: colors.blue,
         paddingHorizontal: 20,
